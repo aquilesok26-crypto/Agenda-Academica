@@ -22,7 +22,7 @@
         
         .app-title { text-align: center; margin-bottom: 25px; color: var(--primario); font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
         
-        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .container { grid-template-columns: 1.2fr 0.8fr; } .full-width { grid-column: span 2; } }
 
         .card { background-color: var(--bg-tarjeta); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #224d61; }
@@ -51,16 +51,23 @@
 
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #224d61; vertical-align: middle; }
-        th { color: var(--texto-secundario); font-size: 0.9rem; }
-        .materia-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed #2d5d75; color: white; padding: 4px; font-size: 1rem; }
+        th, td { padding: 10px 6px; border-bottom: 1px solid #224d61; vertical-align: middle; }
+        th { color: var(--texto-secundario); font-size: 0.85rem; text-align: center; }
+        .materia-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed #2d5d75; color: white; padding: 4px; font-size: 0.95rem; }
         .materia-input:focus { border-bottom-color: var(--primario); outline: none; }
         
-        .opciones-estado { display: flex; gap: 15px; justify-content: center; align-items: center; }
-        .radio-container { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
-        .radio-container input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primario); cursor: pointer; }
+        .semestre-select { background: #1a3644; border: 1px solid #2d5d75; color: white; padding: 4px; border-radius: 4px; font-size: 0.85rem; }
+
+        .celda-parcial { display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.02); padding: 6px; border-radius: 6px; min-width: 100px; }
+        .btn-recup { background: #3a6b85; color: white; border: none; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 2px; }
+        .btn-recup.activo { background: var(--primario); color: #0f2027; }
+        .recup-box { border-top: 1px dashed #3a6b85; margin-top: 4px; padding-top: 4px; width: 100%; text-align: center; }
+
+        .opciones-estado { display: flex; gap: 8px; justify-content: center; align-items: center; }
+        .radio-container { display: flex; align-items: center; gap: 3px; font-size: 0.8rem; cursor: pointer; }
+        .radio-container input[type="radio"] { width: 14px; height: 14px; accent-color: var(--primario); cursor: pointer; }
         
-        .estado-final { font-weight: bold; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; }
+        .estado-final { font-weight: bold; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: block; width: 100px; margin: 0 auto; }
         .estado-aprobado { color: #00e5ff; background: rgba(0, 229, 255, 0.1); }
         .estado-desaprobado { color: #ff5252; background: rgba(255, 82, 82, 0.1); }
     </style>
@@ -105,12 +112,13 @@
             <table>
                 <thead>
                     <tr>
+                        <th style="width: 110px;">Semestre</th>
                         <th>Materia</th>
-                        <th style="text-align: center;">Parcial 1</th>
-                        <th style="text-align: center;">Parcial 2</th>
-                        <th style="text-align: center;">Parcial 3</th>
-                        <th style="text-align: center;">Extraordinario</th>
-                        <th style="text-align: center;">Condición Final</th>
+                        <th>Parcial 1</th>
+                        <th>Parcial 2</th>
+                        <th>Parcial 3</th>
+                        <th>Extraordinario</th>
+                        <th>Condición Final</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-materias-cuerpo">
@@ -124,8 +132,10 @@
 <script>
     let fechaActual = new Date();
     let parciales = JSON.parse(localStorage.getItem('parciales')) || {};
+    
+    // Estructura adaptada para soportar semestres y recuperatorios
     let materias = JSON.parse(localStorage.getItem('materias')) || [
-        { name: '', p1: null, p2: null, p3: null, ext: null }
+        { name: '', semestre: '1', p1: null, r1: null, useR1: false, p2: null, r2: null, useR2: false, p3: null, r3: null, useR3: false, ext: null }
     ];
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -138,15 +148,14 @@
         revisarNotificacionesAnticipadas();
     });
 
+    // --- CALENDARIO ---
     function renderizarCalendario() {
         const año = fechaActual.getFullYear();
         const mes = fechaActual.getMonth();
-        
         document.getElementById("mes-año-titulo").innerText = `${meses[mes]} ${año}`;
         
         const primerDiaMes = new Date(año, mes, 1).getDay();
         const totalDiasMes = new Date(año, mes + 1, 0).getDate();
-        
         const contenedor = document.getElementById("calendario-dias");
         contenedor.innerHTML = "";
 
@@ -165,17 +174,14 @@
             const diaFormateado = String(dia).padStart(2, '0');
             const fechaKey = `${año}-${mesFormateado}-${diaFormateado}`;
 
-            const hoy = new Date();
-            if (dia === hoy.getDate() && mes === hoy.getMonth() && año === hoy.getFullYear()) {
+            if (dia === new Date().getDate() && mes === new Date().getMonth() && año === new Date().getFullYear()) {
                 divDia.classList.add("hoy");
             }
-
             if (parciales[fechaKey]) {
                 const dot = document.createElement("div");
                 dot.classList.add("evento-dot");
                 divDia.appendChild(dot);
             }
-
             divDia.onclick = () => seleccionarFecha(fechaKey);
             contenedor.appendChild(divDia);
         }
@@ -191,33 +197,25 @@
         document.getElementById("nombre-parcial").value = parciales[fechaStr] || "";
     }
 
+    // --- PARCIALES ---
     function guardarParcial() {
         const fecha = document.getElementById("fecha-parcial").value;
         const nombre = document.getElementById("nombre-parcial").value.trim();
+        if (!fecha) return alert("Selecciona un día del calendario primero.");
 
-        if (!fecha) {
-            alert("Por favor, selecciona un día del calendario primero.");
-            return;
-        }
-
-        if (nombre === "") {
-            delete parciales[fecha];
-        } else {
-            parciales[fecha] = nombre;
-        }
+        if (nombre === "") delete parciales[fecha];
+        else parciales[fecha] = nombre;
 
         localStorage.setItem('parciales', JSON.stringify(parciales));
         renderizarCalendario();
         renderizarListaParciales();
         revisarNotificacionesAnticipadas();
-        
         document.getElementById("fecha-parcial").value = "";
         document.getElementById("nombre-parcial").value = "";
-        alert("Agenda actualizada correctamente.");
     }
 
     function borrarParcial(fecha) {
-        if(confirm(`¿Seguro querés borrar el parcial del ${fecha}?`)) {
+        if(confirm(`¿Borrar el parcial del ${fecha}?`)) {
             delete parciales[fecha];
             localStorage.setItem('parciales', JSON.stringify(parciales));
             renderizarCalendario();
@@ -228,117 +226,140 @@
     function renderizarListaParciales() {
         const lista = document.getElementById("lista-eventos");
         lista.innerHTML = "";
-        
-        const fechasOrdenadas = Object.keys(parciales).sort();
-
-        fechasOrdenadas.forEach(fecha => {
+        Object.keys(parciales).sort().forEach(fecha => {
             const item = document.createElement("div");
             item.classList.add("item-evento");
             item.innerHTML = `
-                <div>
-                    <strong style="color:var(--primario);">${fecha}</strong>: ${parciales[fecha]}
-                </div>
+                <div><strong style="color:var(--primario);">${fecha}</strong>: ${parciales[fecha]}</div>
                 <div>
                     <button onclick="seleccionarFecha('${fecha}')" style="background:var(--primario); color:#0f2027; margin-right:5px; font-weight:bold;">Editar</button>
                     <button onclick="borrarParcial('${fecha}')">X</button>
-                </div>
-            `;
+                </div>`;
             lista.appendChild(item);
         });
     }
 
-    // --- NUEVA LÓGICA DE TABLA DE MATERIAS CON DOS CUADROS (SI / NO) ---
-    function calcularCondicion(materia) {
-        // Contamos aprobados en los 3 parciales comunes
-        let aprobadosComunes = 0;
-        if (materia.p1 === true) aprobadosComunes++;
-        if (materia.p2 === true) aprobadosComunes++;
-        if (materia.p3 === true) aprobadosComunes++;
+    // --- NUEVA LÓGICA DE CONDICIÓN (CONTAR 3 APROBADOS) ---
+    function calcularCondicion(m) {
+        let aprobadosTotales = 0;
 
-        // Caso 1: Aprobó los 3 parciales -> aprobado
-        if (aprobadosComunes === 3) {
+        // Revisamos Parcial 1 o su Recuperatorio 1 (si está activo)
+        if (m.useR1) { if (m.r1 === true) aprobadosTotales++; } 
+        else { if (m.p1 === true) aprobadosTotales++; }
+
+        // Revisamos Parcial 2 o su Recuperatorio 2 (si está activo)
+        if (m.useR2) { if (m.r2 === true) aprobadosTotales++; } 
+        else { if (m.p1 === true || m.p2 === true) { if (m.p2 === true) aprobadosTotales++; } } // Corrección directa de lectura
+
+        // Revisamos Parcial 3 o su Recuperatorio 3 (si está activo)
+        if (m.useR3) { if (m.r3 === true) aprobadosTotales++; } 
+        else { if (m.p3 === true) aprobadosTotales++; }
+
+        // El extraordinario suma directo si está en "Sí"
+        if (m.ext === true) aprobadosTotales++;
+
+        // Condición estricta: tiene que juntar 3 o más aprobados
+        if (aprobadosTotales >= 3) {
             return { texto: "aprobado", clase: "estado-aprobado" };
-        }
-        
-        // Caso 2: Aprobó 2 parciales y 1 extraordinario -> aprobó
-        if (aprobadosComunes === 2 && materia.ext === true) {
-            return { texto: "aprobó", clase: "estado-aprobado" };
-        }
-        
-        // Caso 3: Si no aprobó 2 parciales (es decir, aprobó 1 o ninguno de los comunes) -> desaprobado
-        // Caso 4: Si no aprobó nada -> desaprobado
-        if (aprobadosComunes < 2) {
+        } else {
             return { texto: "desaprobado", clase: "estado-desaprobado" };
         }
-        
-        // Cualquier otro caso intermedio por defecto si quedan casillas vacías o sin definir completos
-        return { texto: "-", clase: "" };
     }
 
+    // --- RENDERIZAR TABLA CON AUTOGUARDADO ---
     function renderizarMaterias() {
         const cuerpo = document.getElementById("tabla-materias-cuerpo");
         cuerpo.innerHTML = "";
 
-        materias.forEach((materia, index) => {
-            const condicion = calcularCondicion(materia);
+        materias.forEach((m, index) => {
+            const cond = calcularCondicion(m);
             const fila = document.createElement("tr");
             
             fila.innerHTML = `
-                <td>
-                    <input type="text" class="materia-input" value="${materia.name}" placeholder="Nombre de la materia..." onchange="actualizarMateria(${index}, 'name', this.value)">
+                <td align="center">
+                    <select class="semestre-select" onchange="guardarDatoMateria(${index}, 'semestre', this.value)">
+                        <option value="1" ${m.semestre === '1' ? 'selected' : ''}>1° Semestre</option>
+                        <option value="2" ${m.semestre === '2' ? 'selected' : ''}>2° Semestre</option>
+                    </select>
                 </td>
-                ${['p1', 'p2', 'p3', 'ext'].map(col => `
-                    <td align="center">
-                        <div class="opciones-estado">
-                            <label class="radio-container">
-                                <input type="radio" name="${col}-${index}" ${materia[col] === true ? 'checked' : ''} onclick="cambiarEstadoMateria(${index}, '${col}', true)"> Sí
-                            </label>
-                            <label class="radio-container">
-                                <input type="radio" name="${col}-${index}" ${materia[col] === false ? 'checked' : ''} onclick="cambiarEstadoMateria(${index}, '${col}', false)"> No
-                            </label>
+                
+                <td>
+                    <input type="text" class="materia-input" value="${m.name || ''}" placeholder="Materia..." onchange="guardarDatoMateria(${index}, 'name', this.value)">
+                </td>
+
+                ${['1', '2', '3'].map(n => {
+                    const colP = 'p' + n;
+                    const colR = 'r' + n;
+                    const useR = 'useR' + n;
+                    return `
+                    <td>
+                        <div class="celda-parcial">
+                            <div class="opciones-estado">
+                                <label class="radio-container"><input type="radio" name="${colP}-${index}" ${m[colP] === true ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colP}', true)">Sí</label>
+                                <label class="radio-container"><input type="radio" name="${colP}-${index}" ${m[colP] === false ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colP}', false)">No</label>
+                            </div>
+                            <button class="btn-recup ${m[useR] ? 'activo' : ''}" onclick="conmutarRecuperatorio(${index}, '${useR}')">R</button>
+                            
+                            <div class="recup-box" style="display: ${m[useR] ? 'block' : 'none'};">
+                                <span style="font-size:0.7rem; color:var(--texto-secundario); display:block; margin-bottom:2px;">Recup:</span>
+                                <div class="opciones-estado">
+                                    <label class="radio-container"><input type="radio" name="${colR}-${index}" ${m[colR] === true ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colR}', true)">Sí</label>
+                                    <label class="radio-container"><input type="radio" name="${colR}-${index}" ${m[colR] === false ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colR}', false)">No</label>
+                                </div>
+                            </div>
                         </div>
                     </td>
-                `).join('')}
+                    `;
+                }).join('')}
+
                 <td align="center">
-                    <span class="estado-final ${condicion.clase}">${condicion.texto}</span>
+                    <div class="celda-parcial">
+                        <div class="opciones-estado">
+                            <label class="radio-container"><input type="radio" name="ext-${index}" ${m.ext === true ? 'checked' : ''} onclick="guardarDatoMateria(${index}, 'ext', true)">Sí</label>
+                            <label class="radio-container"><input type="radio" name="ext-${index}" ${m.ext === false ? 'checked' : ''} onclick="guardarDatoMateria(${index}, 'ext', false)">No</label>
+                        </div>
+                    </div>
+                </td>
+
+                <td align="center">
+                    <span class="estado-final ${cond.clase}">${cond.texto}</span>
                 </td>
             `;
             cuerpo.appendChild(fila);
         });
     }
 
-    function cambiarEstadoMateria(index, columna, valor) {
-        materias[index][columna] = valor;
+    // Alternar visibilidad de recuperatorio y guardar estado
+    function conmutarRecuperatorio(index, campoUseR) {
+        materias[index][campoUseR] = !materias[index][campoUseR];
         localStorage.setItem('materias', JSON.stringify(materias));
-        renderizarMaterias(); // Recalcula y redibuja al instante
+        renderizarMaterias();
     }
 
-    function actualizarMateria(index, columna, valor) {
+    // Guarda automáticamente cualquier cambio de inputs o radios en tiempo real
+    function guardarDatoMateria(index, columna, valor) {
         materias[index][columna] = valor;
         localStorage.setItem('materias', JSON.stringify(materias));
+        renderizarMaterias(); 
     }
 
     function agregarFilaMateria() {
-        materias.push({ name: '', p1: null, p2: null, p3: null, ext: null });
-        renderizarMaterias();
+        materias.push({ name: '', semestre: '1', p1: null, r1: null, useR1: false, p2: null, r2: null, useR2: false, p3: null, r3: null, useR3: false, ext: null });
         localStorage.setItem('materias', JSON.stringify(materias));
+        renderizarMaterias();
     }
 
     function solicitarPermisoNotificaciones() {
-        if ("Notification" in window) {
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
         }
     }
 
-    // --- NUEVO FORMATO DE NOTIFICACIÓN ---
     function revisarNotificacionesAnticipadas() {
         if (!("Notification" in window) || Notification.permission !== "granted") return;
 
         const mañana = new Date();
         mañana.setDate(mañana.getDate() + 1);
-        
         const año = mañana.getFullYear();
         const mes = String(mañana.getMonth() + 1).padStart(2, '0');
         const dia = String(mañana.getDate()).padStart(2, '0');
@@ -347,7 +368,6 @@
         if (parciales[fechaMañanaKey]) {
             const ultimaAlerta = localStorage.getItem('ultima_alerta_fecha');
             if (ultimaAlerta !== fechaMañanaKey) {
-                // Modificado: Muestra la fecha, lo agendado y la frase exacta solicitada
                 new Notification("Recordatorio de Estudio", {
                     body: `${fechaMañanaKey} - ${parciales[fechaMañanaKey]} se aproxima no te olvides!!`,
                     icon: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png'
