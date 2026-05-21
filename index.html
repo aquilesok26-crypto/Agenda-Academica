@@ -6,22 +6,20 @@
     <title>Agenda Académica - Control de Parciales</title>
     <style>
         :root {
-            /* Paleta de colores basada en Cian */
-            --bg-principal: #0f2027; /* Fondo oscuro con tinte cian profundo */
-            --bg-tarjeta: #1a3644;    /* Tarjetas cian oscuro */
-            --texto: #e6f7ff;         /* Texto claro tirando a cian */
-            --texto-secundario: #90cdde; /* Texto secundario cian suave */
-            --primario: #00bcd4;      /* Cian brillante para botones principales */
-            --primario-hover: #0097a7;/* Cian más oscuro para el hover */
-            --exito: #00e5ff;         /* Cian eléctrico para aprobados y guardados */
-            --alerta: #ff5252;        /* Rojo suave para alertas/borrar */
-            --dia-comun: #244a5e;     /* Color para los días del calendario */
+            --bg-principal: #0f2027; 
+            --bg-tarjeta: #1a3644;    
+            --texto: #e6f7ff;         
+            --texto-secundario: #90cdde; 
+            --primario: #00bcd4;      
+            --primario-hover: #0097a7;
+            --exito: #00e5ff;         
+            --alerta: #ff5252;        
+            --dia-comun: #244a5e;     
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-principal); color: var(--texto); padding: 20px; }
         
-        /* Título de la App */
         .app-title { text-align: center; margin-bottom: 25px; color: var(--primario); font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
         
         .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
@@ -30,7 +28,6 @@
         .card { background-color: var(--bg-tarjeta); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #224d61; }
         h2 { margin-bottom: 15px; border-bottom: 2px solid #224d61; padding-bottom: 5px; font-size: 1.4rem; color: var(--primario); }
 
-        /* Estilos del Calendario */
         .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .cal-header button { background: var(--primario); color: #0f2027; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .cal-header button:hover { background: var(--primario-hover); color: white; }
@@ -42,7 +39,6 @@
         .dia.hoy { border: 2px solid var(--exito); box-shadow: 0 0 8px var(--exito); }
         .evento-dot { width: 8px; height: 8px; background: var(--alerta); border-radius: 50%; margin: 0 auto 4px auto; }
 
-        /* Estilos de la Agenda */
         .input-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
         .input-group label { color: var(--texto-secundario); font-size: 0.85rem; }
         input, select { padding: 8px; border-radius: 6px; border: 1px solid #2d5d75; background: var(--dia-comun); color: white; }
@@ -53,15 +49,20 @@
         .item-evento { background: var(--dia-comun); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2d5d75; }
         .item-evento button { background: var(--alerta); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
 
-        /* Estilos de la Tabla de Materias */
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #224d61; }
+        th, td { padding: 12px; border-bottom: 1px solid #224d61; vertical-align: middle; }
         th { color: var(--texto-secundario); font-size: 0.9rem; }
         .materia-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed #2d5d75; color: white; padding: 4px; font-size: 1rem; }
         .materia-input:focus { border-bottom-color: var(--primario); outline: none; }
-        .chk-container { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; gap: 2px; }
-        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primario); cursor: pointer; }
+        
+        .opciones-estado { display: flex; gap: 15px; justify-content: center; align-items: center; }
+        .radio-container { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
+        .radio-container input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primario); cursor: pointer; }
+        
+        .estado-final { font-weight: bold; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; }
+        .estado-aprobado { color: #00e5ff; background: rgba(0, 229, 255, 0.1); }
+        .estado-desaprobado { color: #ff5252; background: rgba(255, 82, 82, 0.1); }
     </style>
 </head>
 <body>
@@ -83,7 +84,7 @@
     </div>
 
     <div class="card">
-        <h2>Agendar / Modificar Parcial</h2>
+        <h2>Agendar</h2>
         <div class="input-group">
             <label>Fecha Seleccionada:</label>
             <input type="date" id="fecha-parcial" readonly>
@@ -92,14 +93,14 @@
             <label>Materia / Detalle:</label>
             <input type="text" id="nombre-parcial" placeholder="Ej: Álgebra - Parcial 1">
         </div>
-        <button class="btn-block" onclick="guardarParcial()">Guardar Parcial</button>
+        <button class="btn-block" onclick="guardarParcial()">Guardar</button>
         
         <h3 style="margin-top:20px; font-size:1.1rem; color: var(--texto-secundario);">Próximos Parciales:</h3>
         <div class="lista-eventos" id="lista-eventos"></div>
     </div>
 
     <div class="card full-width">
-        <h2>Mis Materias y Parciales (Aprobado/Regular)</h2>
+        <h2>Mis Materias y Parciales</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -109,6 +110,7 @@
                         <th style="text-align: center;">Parcial 2</th>
                         <th style="text-align: center;">Parcial 3</th>
                         <th style="text-align: center;">Extraordinario</th>
+                        <th style="text-align: center;">Condición Final</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-materias-cuerpo">
@@ -120,16 +122,14 @@
 </div>
 
 <script>
-    // --- VARIABLES GLOBALES Y DATOS ---
     let fechaActual = new Date();
     let parciales = JSON.parse(localStorage.getItem('parciales')) || {};
     let materias = JSON.parse(localStorage.getItem('materias')) || [
-        { name: '', p1: false, p2: false, p3: false, ext: false }
+        { name: '', p1: null, p2: null, p3: null, ext: null }
     ];
 
     const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-    // --- INICIALIZACIÓN ---
     document.addEventListener("DOMContentLoaded", () => {
         renderizarCalendario();
         renderizarListaParciales();
@@ -138,7 +138,6 @@
         revisarNotificacionesAnticipadas();
     });
 
-    // --- LÓGICA DEL CALENDARIO ---
     function renderizarCalendario() {
         const año = fechaActual.getFullYear();
         const mes = fechaActual.getMonth();
@@ -192,7 +191,6 @@
         document.getElementById("nombre-parcial").value = parciales[fechaStr] || "";
     }
 
-    // --- GESTIÓN DE PARCIALES ---
     function guardarParcial() {
         const fecha = document.getElementById("fecha-parcial").value;
         const nombre = document.getElementById("nombre-parcial").value.trim();
@@ -249,41 +247,83 @@
         });
     }
 
-    // --- TABLA DE MATERIAS ---
+    // --- NUEVA LÓGICA DE TABLA DE MATERIAS CON DOS CUADROS (SI / NO) ---
+    function calcularCondicion(materia) {
+        // Contamos aprobados en los 3 parciales comunes
+        let aprobadosComunes = 0;
+        if (materia.p1 === true) aprobadosComunes++;
+        if (materia.p2 === true) aprobadosComunes++;
+        if (materia.p3 === true) aprobadosComunes++;
+
+        // Caso 1: Aprobó los 3 parciales -> aprobado
+        if (aprobadosComunes === 3) {
+            return { texto: "aprobado", clase: "estado-aprobado" };
+        }
+        
+        // Caso 2: Aprobó 2 parciales y 1 extraordinario -> aprobó
+        if (aprobadosComunes === 2 && materia.ext === true) {
+            return { texto: "aprobó", clase: "estado-aprobado" };
+        }
+        
+        // Caso 3: Si no aprobó 2 parciales (es decir, aprobó 1 o ninguno de los comunes) -> desaprobado
+        // Caso 4: Si no aprobó nada -> desaprobado
+        if (aprobadosComunes < 2) {
+            return { texto: "desaprobado", clase: "estado-desaprobado" };
+        }
+        
+        // Cualquier otro caso intermedio por defecto si quedan casillas vacías o sin definir completos
+        return { texto: "-", clase: "" };
+    }
+
     function renderizarMaterias() {
         const cuerpo = document.getElementById("tabla-materias-cuerpo");
         cuerpo.innerHTML = "";
 
         materias.forEach((materia, index) => {
+            const condicion = calcularCondicion(materia);
             const fila = document.createElement("tr");
+            
             fila.innerHTML = `
                 <td>
                     <input type="text" class="materia-input" value="${materia.name}" placeholder="Nombre de la materia..." onchange="actualizarMateria(${index}, 'name', this.value)">
                 </td>
+                ${['p1', 'p2', 'p3', 'ext'].map(col => `
+                    <td align="center">
+                        <div class="opciones-estado">
+                            <label class="radio-container">
+                                <input type="radio" name="${col}-${index}" ${materia[col] === true ? 'checked' : ''} onclick="cambiarEstadoMateria(${index}, '${col}', true)"> Sí
+                            </label>
+                            <label class="radio-container">
+                                <input type="radio" name="${col}-${index}" ${materia[col] === false ? 'checked' : ''} onclick="cambiarEstadoMateria(${index}, '${col}', false)"> No
+                            </label>
+                        </div>
+                    </td>
+                `).join('')}
                 <td align="center">
-                    <div class="chk-container"><input type="checkbox" ${materia.p1 ? 'checked' : ''} onchange="actualizarMateria(${index}, 'p1', this.checked)"></div>
-                </td>
-                <td align="center">
-                    <div class="chk-container"><input type="checkbox" ${materia.p2 ? 'checked' : ''} onchange="actualizarMateria(${index}, 'p2', this.checked)"></div>
-                </td>
-                <td align="center">
-                    <div class="chk-container"><input type="checkbox" ${materia.p3 ? 'checked' : ''} onchange="actualizarMateria(${index}, 'p3', this.checked)"></div>
-                </td>
-                <td align="center">
-                    <div class="chk-container"><input type="checkbox" ${materia.ext ? 'checked' : ''} onchange="actualizarMateria(${index}, 'ext', this.checked)"></div>
+                    <span class="estado-final ${condicion.clase}">${condicion.texto}</span>
                 </td>
             `;
             cuerpo.appendChild(fila);
         });
     }
 
+    function cambiarEstadoMateria(index, columna, valor) {
+        materias[index][columna] = valor;
+        localStorage.setItem('materias', JSON.stringify(materias));
+        renderizarMaterias(); // Recalcula y redibuja al instante
+    }
+
+    function actualizarMateria(index, columna, valor) {
+        materias[index][columna] = valor;
+        localStorage.setItem('materias', JSON.stringify(materias));
+    }
+
     function agregarFilaMateria() {
-        materias.push({ name: '', p1: false, p2: false, p3: false, ext: false });
+        materias.push({ name: '', p1: null, p2: null, p3: null, ext: null });
         renderizarMaterias();
         localStorage.setItem('materias', JSON.stringify(materias));
     }
 
-    // --- NOTIFICACIONES ---
     function solicitarPermisoNotificaciones() {
         if ("Notification" in window) {
             if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -292,6 +332,7 @@
         }
     }
 
+    // --- NUEVO FORMATO DE NOTIFICACIÓN ---
     function revisarNotificacionesAnticipadas() {
         if (!("Notification" in window) || Notification.permission !== "granted") return;
 
@@ -306,8 +347,9 @@
         if (parciales[fechaMañanaKey]) {
             const ultimaAlerta = localStorage.getItem('ultima_alerta_fecha');
             if (ultimaAlerta !== fechaMañanaKey) {
-                new Notification("Agenda Académica: ¡Parcial Mañana!", {
-                    body: `Recordatorio: Mañana rendís "${parciales[fechaMañanaKey]}". ¡A meterle pata al estudio!`,
+                // Modificado: Muestra la fecha, lo agendado y la frase exacta solicitada
+                new Notification("Recordatorio de Estudio", {
+                    body: `${fechaMañanaKey} - ${parciales[fechaMañanaKey]} se aproxima no te olvides!!`,
                     icon: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png'
                 });
                 localStorage.setItem('ultima_alerta_fecha', fechaMañanaKey);
