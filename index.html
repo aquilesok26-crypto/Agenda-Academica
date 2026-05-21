@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agenda Académica - Control de Parciales</title>
     <style>
         :root {
@@ -18,56 +18,99 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-principal); color: var(--texto); padding: 20px; }
         
-        .app-title { text-align: center; margin-bottom: 25px; color: var(--primario); font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        body { 
+            background-color: var(--bg-principal); 
+            color: var(--texto); 
+            padding: 10px; /* Reducido para pantallas chicas */
+            font-size: 14px;
+        }
         
-        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { .container { grid-template-columns: 1.2fr 0.8fr; } .full-width { grid-column: span 2; } }
-
-        .card { background-color: var(--bg-tarjeta); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #224d61; }
-        h2 { margin-bottom: 15px; border-bottom: 2px solid #224d61; padding-bottom: 5px; font-size: 1.4rem; color: var(--primario); }
-
-        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .cal-header button { background: var(--primario); color: #0f2027; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .cal-header button:hover { background: var(--primario-hover); color: white; }
-        .dias-semana { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; color: var(--texto-secundario); margin-bottom: 5px; }
-        .matriz-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .dia { aspect-ratio: 1; background: var(--dia-comun); display: flex; flex-direction: column; justify-content: space-between; padding: 5px; border-radius: 6px; cursor: pointer; position: relative; font-size: 0.9rem; transition: background 0.2s; border: 1px solid #2d5d75; }
-        .dia:hover { background: #2f617a; }
-        .dia.vacio { background: transparent; cursor: default; border: none; }
-        .dia.hoy { border: 2px solid var(--exito); box-shadow: 0 0 8px var(--exito); }
-        .evento-dot { width: 8px; height: 8px; background: var(--alerta); border-radius: 50%; margin: 0 auto 4px auto; }
-
-        .input-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
-        .input-group label { color: var(--texto-secundario); font-size: 0.85rem; }
-        input, select { padding: 8px; border-radius: 6px; border: 1px solid #2d5d75; background: var(--dia-comun); color: white; }
-        input:focus { outline: none; border-color: var(--primario); }
-        button.btn-block { width: 100%; background: var(--exito); color: #0f2027; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: opacity 0.2s; }
-        button.btn-block:hover { opacity: 0.9; }
-        .lista-eventos { margin-top: 15px; max-height: 200px; overflow-y: auto; }
-        .item-evento { background: var(--dia-comun); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2d5d75; }
-        .item-evento button { background: var(--alerta); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
-        th, td { padding: 10px 6px; border-bottom: 1px solid #224d61; vertical-align: middle; }
-        th { color: var(--texto-secundario); font-size: 0.85rem; text-align: center; }
-        .materia-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed #2d5d75; color: white; padding: 4px; font-size: 0.95rem; }
-        .materia-input:focus { border-bottom-color: var(--primario); outline: none; }
+        .app-title { 
+            text-align: center; 
+            margin: 10px 0 20px 0; 
+            color: var(--primario); 
+            font-size: 1.8rem; /* Más compacto */
+            font-weight: 800; 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+        }
         
-        .semestre-select { background: #1a3644; border: 1px solid #2d5d75; color: white; padding: 4px; border-radius: 4px; font-size: 0.85rem; }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 15px; 
+        }
+        
+        @media (min-width: 768px) { 
+            .container { grid-template-columns: 1.2fr 0.8fr; } 
+            .full-width { grid-column: span 2; } 
+        }
 
-        .celda-parcial { display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.02); padding: 6px; border-radius: 6px; min-width: 100px; }
-        .btn-recup { background: #3a6b85; color: white; border: none; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 2px; }
+        .card { 
+            background-color: var(--bg-tarjeta); 
+            padding: 15px; /* Más compacto */
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            border: 1px solid #224d61; 
+            width: 100%;
+            overflow: hidden; /* Evita que la tarjeta se deforme */
+        }
+        
+        h2 { margin-bottom: 12px; border-bottom: 2px solid #224d61; padding-bottom: 5px; font-size: 1.2rem; color: var(--primario); }
+
+        /* CALENDARIO OPTIMIZADO */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .cal-header button { background: var(--primario); color: #0f2027; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .dias-semana { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; color: var(--texto-secundario); margin-bottom: 5px; font-size: 0.8rem; }
+        .matriz-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .dia { aspect-ratio: 1; background: var(--dia-comun); display: flex; flex-direction: column; justify-content: space-between; padding: 4px; border-radius: 6px; cursor: pointer; position: relative; font-size: 0.85rem; border: 1px solid #2d5d75; }
+        .dia.hoy { border: 2px solid var(--exito); box-shadow: 0 0 6px var(--exito); }
+        .evento-dot { width: 6px; height: 6px; background: var(--alerta); border-radius: 50%; margin: 0 auto 2px auto; }
+
+        /* FORMULARIOS COMODOS */
+        .input-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .input-group label { color: var(--texto-secundario); font-size: 0.8rem; }
+        input, select { padding: 10px; border-radius: 6px; border: 1px solid #2d5d75; background: var(--dia-comun); color: white; font-size: 0.95rem; }
+        button.btn-block { width: 100%; background: var(--exito); color: #0f2027; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 1rem; }
+        
+        .lista-eventos { margin-top: 15px; max-height: 180px; overflow-y: auto; }
+        .item-evento { background: var(--dia-comun); padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2d5d75; font-size: 0.85rem; }
+
+        /* RESPONSIVE: CONTENEDOR CON SCROLL PARA LA TABLA */
+        .table-responsive { 
+            width: 100%;
+            overflow-x: auto; /* Permite arrastrar de costado en el celu sin romper el diseño */
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+            min-width: 650px; /* Fuerza un ancho mínimo interno para que no se aplasten las celdas */
+        }
+        
+        th, td { padding: 8px 4px; border-bottom: 1px solid #224d61; vertical-align: middle; }
+        th { color: var(--texto-secundario); font-size: 0.8rem; text-align: center; background: rgba(0,0,0,0.1); }
+        
+        .materia-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed #2d5d75; color: white; padding: 4px; font-size: 0.9rem; }
+        .semestre-select { background: #1a3644; border: 1px solid #2d5d75; color: white; padding: 4px; border-radius: 4px; font-size: 0.8rem; }
+
+        .celda-parcial { display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.02); padding: 4px; border-radius: 6px; }
+        .btn-recup { background: #3a6b85; color: white; border: none; padding: 2px 6px; font-size: 0.65rem; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .btn-recup.activo { background: var(--primario); color: #0f2027; }
         .recup-box { border-top: 1px dashed #3a6b85; margin-top: 4px; padding-top: 4px; width: 100%; text-align: center; }
 
-        .opciones-estado { display: flex; gap: 8px; justify-content: center; align-items: center; }
-        .radio-container { display: flex; align-items: center; gap: 3px; font-size: 0.8rem; cursor: pointer; }
-        .radio-container input[type="radio"] { width: 14px; height: 14px; accent-color: var(--primario); cursor: pointer; }
+        .opciones-estado { display: flex; gap: 6px; justify-content: center; align-items: center; }
+        .radio-container { display: flex; align-items: center; gap: 2px; font-size: 0.75rem; cursor: pointer; }
+        .radio-container input[type="radio"] { width: 13px; height: 13px; accent-color: var(--primario); }
         
-        .estado-final { font-weight: bold; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem; display: block; width: 100px; margin: 0 auto; }
+        .estado-final { font-weight: bold; text-align: center; padding: 4px 6px; border-radius: 4px; font-size: 0.8rem; display: block; width: 85px; margin: 0 auto; }
         .estado-aprobado { color: #00e5ff; background: rgba(0, 229, 255, 0.1); }
         .estado-desaprobado { color: #ff5252; background: rgba(255, 82, 82, 0.1); }
     </style>
@@ -102,7 +145,7 @@
         </div>
         <button class="btn-block" onclick="guardarParcial()">Guardar</button>
         
-        <h3 style="margin-top:20px; font-size:1.1rem; color: var(--texto-secundario);">Próximos Parciales:</h3>
+        <h3 style="margin-top:15px; font-size:1rem; color: var(--texto-secundario);">Próximos Parciales:</h3>
         <div class="lista-eventos" id="lista-eventos"></div>
     </div>
 
@@ -112,8 +155,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 110px;">Semestre</th>
-                        <th>Materia</th>
+                        <th style="width: 95px;">Semestre</th>
+                        <th style="min-width: 120px;">Materia</th>
                         <th>Parcial 1</th>
                         <th>Parcial 2</th>
                         <th>Parcial 3</th>
@@ -125,15 +168,13 @@
                     </tbody>
             </table>
         </div>
-        <button onclick="agregarFilaMateria()" style="margin-top: 15px; background: var(--primario); color: #0f2027; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">+ Agregar Materia</button>
+        <button onclick="agregarFilaMateria()" style="margin-top: 15px; background: var(--primario); color: #0f2027; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">+ Agregar Materia</button>
     </div>
 </div>
 
 <script>
     let fechaActual = new Date();
     let parciales = JSON.parse(localStorage.getItem('parciales')) || {};
-    
-    // Estructura adaptada para soportar semestres y recuperatorios
     let materias = JSON.parse(localStorage.getItem('materias')) || [
         { name: '', semestre: '1', p1: null, r1: null, useR1: false, p2: null, r2: null, useR2: false, p3: null, r3: null, useR3: false, ext: null }
     ];
@@ -148,7 +189,6 @@
         revisarNotificacionesAnticipadas();
     });
 
-    // --- CALENDARIO ---
     function renderizarCalendario() {
         const año = fechaActual.getFullYear();
         const mes = fechaActual.getMonth();
@@ -197,7 +237,6 @@
         document.getElementById("nombre-parcial").value = parciales[fechaStr] || "";
     }
 
-    // --- PARCIALES ---
     function guardarParcial() {
         const fecha = document.getElementById("fecha-parcial").value;
         const nombre = document.getElementById("nombre-parcial").value.trim();
@@ -232,33 +271,27 @@
             item.innerHTML = `
                 <div><strong style="color:var(--primario);">${fecha}</strong>: ${parciales[fecha]}</div>
                 <div>
-                    <button onclick="seleccionarFecha('${fecha}')" style="background:var(--primario); color:#0f2027; margin-right:5px; font-weight:bold;">Editar</button>
-                    <button onclick="borrarParcial('${fecha}')">X</button>
+                    <button onclick="seleccionarFecha('${fecha}')" style="background:var(--primario); color:#0f2027; margin-right:5px; font-weight:bold; padding:2px 4px; font-size:0.75rem;">Editar</button>
+                    <button onclick="borrarParcial('${fecha}')" style="padding:2px 4px; font-size:0.75rem;">X</button>
                 </div>`;
             lista.appendChild(item);
         });
     }
 
-    // --- NUEVA LÓGICA DE CONDICIÓN (CONTAR 3 APROBADOS) ---
     function calcularCondicion(m) {
         let aprobadosTotales = 0;
 
-        // Revisamos Parcial 1 o su Recuperatorio 1 (si está activo)
         if (m.useR1) { if (m.r1 === true) aprobadosTotales++; } 
         else { if (m.p1 === true) aprobadosTotales++; }
 
-        // Revisamos Parcial 2 o su Recuperatorio 2 (si está activo)
         if (m.useR2) { if (m.r2 === true) aprobadosTotales++; } 
-        else { if (m.p1 === true || m.p2 === true) { if (m.p2 === true) aprobadosTotales++; } } // Corrección directa de lectura
+        else { if (m.p2 === true) aprobadosTotales++; }
 
-        // Revisamos Parcial 3 o su Recuperatorio 3 (si está activo)
         if (m.useR3) { if (m.r3 === true) aprobadosTotales++; } 
         else { if (m.p3 === true) aprobadosTotales++; }
 
-        // El extraordinario suma directo si está en "Sí"
         if (m.ext === true) aprobadosTotales++;
 
-        // Condición estricta: tiene que juntar 3 o más aprobados
         if (aprobadosTotales >= 3) {
             return { texto: "aprobado", clase: "estado-aprobado" };
         } else {
@@ -266,7 +299,6 @@
         }
     }
 
-    // --- RENDERIZAR TABLA CON AUTOGUARDADO ---
     function renderizarMaterias() {
         const cuerpo = document.getElementById("tabla-materias-cuerpo");
         cuerpo.innerHTML = "";
@@ -278,15 +310,13 @@
             fila.innerHTML = `
                 <td align="center">
                     <select class="semestre-select" onchange="guardarDatoMateria(${index}, 'semestre', this.value)">
-                        <option value="1" ${m.semestre === '1' ? 'selected' : ''}>1° Semestre</option>
-                        <option value="2" ${m.semestre === '2' ? 'selected' : ''}>2° Semestre</option>
+                        <option value="1" ${m.semestre === '1' ? 'selected' : ''}>1° Sem</option>
+                        <option value="2" ${m.semestre === '2' ? 'selected' : ''}>2° Sem</option>
                     </select>
                 </td>
-                
                 <td>
                     <input type="text" class="materia-input" value="${m.name || ''}" placeholder="Materia..." onchange="guardarDatoMateria(${index}, 'name', this.value)">
                 </td>
-
                 ${['1', '2', '3'].map(n => {
                     const colP = 'p' + n;
                     const colR = 'r' + n;
@@ -299,9 +329,7 @@
                                 <label class="radio-container"><input type="radio" name="${colP}-${index}" ${m[colP] === false ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colP}', false)">No</label>
                             </div>
                             <button class="btn-recup ${m[useR] ? 'activo' : ''}" onclick="conmutarRecuperatorio(${index}, '${useR}')">R</button>
-                            
                             <div class="recup-box" style="display: ${m[useR] ? 'block' : 'none'};">
-                                <span style="font-size:0.7rem; color:var(--texto-secundario); display:block; margin-bottom:2px;">Recup:</span>
                                 <div class="opciones-estado">
                                     <label class="radio-container"><input type="radio" name="${colR}-${index}" ${m[colR] === true ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colR}', true)">Sí</label>
                                     <label class="radio-container"><input type="radio" name="${colR}-${index}" ${m[colR] === false ? 'checked' : ''} onclick="guardarDatoMateria(${index}, '${colR}', false)">No</label>
@@ -311,7 +339,6 @@
                     </td>
                     `;
                 }).join('')}
-
                 <td align="center">
                     <div class="celda-parcial">
                         <div class="opciones-estado">
@@ -320,7 +347,6 @@
                         </div>
                     </div>
                 </td>
-
                 <td align="center">
                     <span class="estado-final ${cond.clase}">${cond.texto}</span>
                 </td>
@@ -329,14 +355,13 @@
         });
     }
 
-    // Alternar visibilidad de recuperatorio y guardar estado
+    // Guardado y re-renderizado fluido
     function conmutarRecuperatorio(index, campoUseR) {
         materias[index][campoUseR] = !materias[index][campoUseR];
         localStorage.setItem('materias', JSON.stringify(materias));
         renderizarMaterias();
     }
 
-    // Guarda automáticamente cualquier cambio de inputs o radios en tiempo real
     function guardarDatoMateria(index, columna, valor) {
         materias[index][columna] = valor;
         localStorage.setItem('materias', JSON.stringify(materias));
